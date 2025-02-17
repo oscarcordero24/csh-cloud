@@ -1,17 +1,9 @@
 
-/* For this CSS to work, the Div html should look like this: 
-<div id="popup-window" class="hidden">
-    <img src="../images/usace_logo.png" alt="usace-logo">
-    <h2 id="popup-title">This is the POPUP window Title.</h2>
-    <p id="popup-message">Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime delectus quasi alias dolore maiores enim nulla exercitationem quos, minus non?</p>
-    <a href="#" id="popup-button">Close</a>
-</div>
-*/
 
-.page-wrap.blur {
+.page-wrap.active {
     filter: blur(20px);
     pointer-events: none;
-    transition: 0.5s;
+    user-select: none;
 }
 
 #popup-window {
@@ -20,7 +12,7 @@
     flex-direction: column;
     border-radius: 15px;
     gap: 10px;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%,-50%);
     width: 600px;
@@ -28,6 +20,8 @@
     padding: 30px;
     box-shadow: 0 5px 30px rgba(0,0,0,0.30);
     background: white;
+    visibility: hidden;
+    opacity: 0;
     transition: 0.5s;
     z-index: 100;
 }
@@ -37,10 +31,15 @@
     height: auto;
 }
 
-#popup-window.hidden {
-    display: none;
-    top: 30%;
+#popup-window.active {
+    top: 50%;
+    visibility: visible;
+    opacity: 1;
     transition: 0.5s;
+}
+
+#popup-window.active::before {
+    content: '';
 }
 
 #popup-button {
@@ -50,7 +49,6 @@
     font-weight: bold;
     width: 75px;
     text-align: center;
-    border-radius: 10px;
 }
 
 
