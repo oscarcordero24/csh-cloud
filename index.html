@@ -227,7 +227,7 @@
 
                                                     <button id="instruction-btn">Instructions</button>
 
-                                                    <button id="plot-btn">Plot CSH</button>
+                                                    <button id="plot-btn" disabled>Plot CSH</button>
 
                                                 </div>
 
@@ -280,7 +280,15 @@
                                                 </div>
                                             </div>
 
+                                            <div id="print-btn-div" class="hidden">
+                                                <button id="print-btn">Print</button>
+                                            </div>
+
                                             <div id="plot" class="hidden"></div>
+
+                                            <div id="time-serie-name-div" class="hidden">
+                                                <h2></h2>
+                                            </div>
                                             
                                             <!-- <script src="https://cdn.sheetjs.com/xlsx-0.18.2/package/dist/xlsx.full.min.js"></script> -->
                                             <script src="js/xlsx.full.min.js"></script>
@@ -329,7 +337,7 @@
         </div>
 
         <div id="popup-window">
-            <img src="../images/usace_logo.png" alt="usace-logo">
+            <img src="images/usace_logo.png" alt="usace-logo">
             <h2 id="popup-title">This is the POPUP window Title.</h2>
             <p id="popup-message">Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime delectus quasi alias dolore maiores enim nulla exercitationem quos, minus non?</p>
             <a href="#" id="popup-button">Close</a>
@@ -345,7 +353,7 @@
             $(document).ready(function () {
                 // Change the v= to a different number to force clearing the cached version on the client browser
                 $('#header').load('templates/DISTRICT.header.html?v=1');
-                // $('#sidebar').load('../templates/DISTRICT.sidebar.html?v=1');
+                // $('#sidebar').load('templates/DISTRICT.sidebar.html?v=1');
                 $('#footer').load('templates/DISTRICT.footer.html?v=1');
             })
         </script>

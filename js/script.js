@@ -78,7 +78,11 @@ const basinName = document.getElementById('basinCombobox'),
       floodStageText = document.getElementById('flood-stage-text'),
       lwrpStageText = document.getElementById('lwrp-text'),
       errorMessageDiv = document.getElementById('error-message'),
-      errorMessageText = document.querySelector('#error-message h2');
+      errorMessageText = document.querySelector('#error-message h2'),
+      timeSerieDiv = document.getElementById('time-serie-name-div'),
+      timeSerieText = document.querySelector('#time-serie-name-div h2'),
+      printBtnDiv = document.getElementById('print-btn-div'),
+      printBtn= document.getElementById('print-btn');
 
 
 let params = new URLSearchParams(window.location.search);
@@ -109,24 +113,14 @@ function initialize(data) {
         document.getElementById('page-container').classList.toggle('dark');
     });
 
+    // Add print Function
+    printBtn.addEventListener('click', printPlot);
+
     // Extract the names of the basins with the list of gages
     let namesObject = getNames(data);
 
     // Add the basins names to the basin combobox
     addBasinNames(basinName, namesObject);
-
-    // Add data to the gage combobox at the beggining of the code
-    // gageName.options.length = 0;
-    // namesObject.forEach(element => {
-    //     if (element['basin'] === basinName.value) {
-    //         element['datman'].forEach(item => {
-    //             let option = document.createElement('option');
-    //             option.value = item;
-    //             option.textContent = item.split('.')[0];
-    //             gageName.appendChild(option);
-    //         });
-    //     }
-    // });
 
     instructionsBtn.addEventListener('click', function(){
         instructionsDiv.classList.toggle('hidden');
@@ -134,6 +128,16 @@ function initialize(data) {
 
     // Change the gage values each time the basin value is changed
     basinName.addEventListener('change', function() {
+
+        plotCSHBtn.disabled = true;
+
+        if (!haveClass(printBtnDiv, 'hidden')){
+            printBtnDiv.classList.add('hidden')
+        }
+
+        if (!haveClass(timeSerieDiv, 'hidden')){
+            timeSerieDiv.classList.add('hidden')
+        }
 
         gageName.options.length = 0;
         namesObject.forEach(element => {
@@ -210,6 +214,16 @@ function initialize(data) {
     // Update 'Avaliable POR' table everytime the gage name is changed
     gageName.addEventListener('change', function(){
 
+        plotCSHBtn.disabled = true;
+
+        if (!haveClass(printBtnDiv, 'hidden')){
+            printBtnDiv.classList.add('hidden')
+        }
+
+        if (!haveClass(timeSerieDiv, 'hidden')){
+            timeSerieDiv.classList.add('hidden')
+        }
+
         updateAvailablePORTable(data);
 
         // Determine if it's project
@@ -261,6 +275,8 @@ function initialize(data) {
         year6SelectBox.selectedIndex = 0;
 
         statisticMeanCheckbox.checked = false;
+
+        populateDropdownList();
 
     });
 
@@ -588,207 +604,14 @@ async function main(data) {
     createPlot(plotData, gageName.value, minValue + offset, maxValue + offset);
 
     plotDiv.classList.remove('hidden');
-    
-    // fetch(FloodApiUrl)
-    //     .then(response => {
-    //         if (!response.ok){
-    //             throw new Error("Network was not ok. " + response.status);
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(floodData => {
-    //         // Set map to null if the data is null or undefined
-    //         console.log("Flood Data: ", floodData);
 
-    //         let floodStageNum = Math.round(floodData['constant-value'] * 100) / 100;
+    printBtnDiv.classList.remove('hidden');
 
-    //         const levelIdLWRP = `${gageName.value}.Stage.Inst.0.LWRP`;
-    //         const WLRPApiUrl = `${setBaseUrl}levels/${levelIdLWRP}?office=${officeName.toLowerCase()}&effective-date=${levelIdEffectiveDate}&unit=ft`;
+    timeSerieText.textContent = `Time Serie: ${globalDatman}`;
 
-    //         console.log("LWRP URL: ", WLRPApiUrl);
-            
-    //         fetch(WLRPApiUrl)
-    //             .then(response => {
-    //                 if (!response.ok){
-    //                     throw new Error("Network was not ok. " + response.status);
-    //                 }
-    //                 return response.json();
-    //             })
-    //             .then(lwrpData => {
-    //                 // Set map to null if the data is null or undefined
-    //                 console.log("LWRP Data: ", lwrpData);
-
-    //                 let lwrpStageNum = Math.round(lwrpData['constant-value'] * 100) / 100;
-
-    //                 const levelIdNgvd29 = `${gageName.value}.Height.Inst.0.NGVD29`;
-    //                 const NGVD29ApiUrl = `${setBaseUrl}levels/${levelIdNgvd29}?office=${officeName.toLowerCase()}&effective-date=${levelIdEffectiveDate}&unit=ft`;
-
-    //                 console.log("NGVD29 URL: ", NGVD29ApiUrl);
-
-    //                 fetch(NGVD29ApiUrl)
-    //                     .then(response => {
-    //                         if (!response.ok){
-    //                             throw new Error("Network was not ok. " + response.status);
-    //                         }
-    //                         return response.json();
-    //                     })
-    //                     .then(ngvd29Data => {
-    //                         // Set map to null if the data is null or undefined
-    //                         console.log("LWRP Data: ", ngvd29Data);
-
-    //                         let ngvd29StageNum = Math.round(ngvd29Data['constant-value'] * 100) / 100;
-
-    //                         floodStageNum += ngvd29StageNum;
-    //                         lwrpStageNum += ngvd29StageNum;
-                            
-                            
-
-    //                     })
-    //                     .catch(error => {
-    //                         console.error(`Error fetching ngvd29 level for ${gageName.value.split('.')[0]}:`, error);
-    //                         loadingPageData();
-    //                     });
-                    
-    //             })
-    //             .catch(error => {
-    //                 console.error(`Error fetching ngvd29 level for ${gageName.value.split('.')[0]}:`, error);
-    //                 loadingPageData();
-    //             });
-
-    //     })
-    //     .catch(error => {
-    //         console.error(`Error fetching ngvd29 level for ${gageName.value.split('.')[0]}:`, error);
-    //         loadingPageData();
-    //     });
-
-
-    // // Extract the data which is going to be shown in the table
-    // let meanDataTable = extractDataForTable(meanData);
-    // let minDataTable = extractDataForTable(minData);
-    // let maxDataTable = extractDataForTable(maxData);
-
-    // // Get all the data for the total stats
-    // let totalPORData = [];
-    // wholePeriodList.forEach(element => {
-    //     element.data.forEach(item => {
-    //         totalPORData.push(item.stage);
-    //     });
-    // });
-
-    // // Get mean, max and min
-    // let removeUndefinedTotal = totalPORData.filter(x => x);
-    // let totalMean = removeUndefinedTotal.reduce((x, y) => x + y)/removeUndefinedTotal.length;
-    // let totalMax = Math.max(...removeUndefinedTotal);
-    // let totalFilteredMinData = removeUndefinedTotal.filter(x => x !== 0);
-    // let totalMin = Math.min(...totalFilteredMinData);
-
-    // // Get date for min and max
-    // let maxTotalDate = null;
-    // wholePeriodList.forEach(element => {
-    //     element.data.forEach(item => {
-    //         if (item.stage === totalMax) {
-    //             maxTotalDate = item.date;
-    //         }
-    //     });
-    // });
-
-    // let minTotalDate = null;
-    // wholePeriodList.forEach(element => {
-    //     element.data.forEach(item => {
-    //         if (item.stage === totalMin) {
-    //             minTotalDate = item.date;
-    //         }
-    //     });
-    // });
-
-    // // Get all the data for the mean stats
-    // let allMeanData = [];
-    // meanDataTable.forEach(element => {
-    //     for (let i = 0; i < element.length; i++){
-    //         allMeanData.push(element[i]);
-    //     };
-    // });
-
-    // // Get mean, max and min
-    // let noCeroData = allMeanData.filter(x => x !== 0);
-    // let aveMean = noCeroData.reduce((x, y) => x + y)/noCeroData.length;
-    // let aveMax = Math.max(...allMeanData);
-    // let aveMin = Math.min(...noCeroData);
-
-    // // Get date for min and max
-    // let maxMeanDate = null;
-    // meanData.forEach(element => {
-    //     if (element.stage === aveMax) {
-    //         maxMeanDate = element.date;
-    //     }
-    // });
-
-    // let minMeanDate = null;
-    // meanData.forEach(element => {
-    //     if (element.stage === aveMin) {
-    //         minMeanDate = element.date;
-    //     }
-    // });
-
-    // // Get all the data for the min stats
-    // let allMinData = [];
-    // minDataTable.forEach(element => {
-    //     for (let i = 0; i < element.length; i++){
-    //         allMinData.push(element[i][0]);
-    //     };
-    // });
-
-    // // Get mean, max and min
-    // let removeUndefined = allMinData.filter(x => x);
-    // let minFilteredMinData = removeUndefined.filter(x => x !== 0);
-    // let minMean = minFilteredMinData.reduce((x, y) => x + y)/minFilteredMinData.length;
-    // let minMax = Math.max(...removeUndefined);
-    // let minMin = Math.min(...minFilteredMinData);
-
-    // // Get date for min and max
-    // let maxMinDate = null;
-    // minData.forEach(element => {
-    //     if (element.stage[0] === minMax) {
-    //         maxMinDate = `${element.stage[1]}-${element.date}`;
-    //     }
-    // });
-
-    // let minMinDate = null;
-    // minData.forEach(element => {
-    //     if (element.stage[0] === minMin) {
-    //         minMinDate = `${element.stage[1]}-${element.date}`;
-    //     }
-    // });
-
-    // // Get all the data for the max stats
-    // let allMaxData = [];
-    // maxDataTable.forEach(element => {
-    //     for (let i = 0; i < element.length; i++){
-    //         allMaxData.push(element[i][0]);
-    //     };
-    // });
-
-    // // Get mean, max and min
-    // let removeUndefinedMax = allMaxData.filter(x => x);
-    // let maxFilteredMinData = removeUndefinedMax.filter(x => x !== 0);
-    // let maxMean = maxFilteredMinData.reduce((x, y) => x + y)/maxFilteredMinData.length;
-    // let maxMax = Math.max(...removeUndefinedMax);
-    // let maxMin = Math.min(...maxFilteredMinData);
-
-    // // Get date for min and max
-    // let maxMaxDate = null;
-    // maxData.forEach(element => {
-    //     if (element.stage[0] === maxMax) {
-    //         maxMaxDate = `${element.stage[1]}-${element.date}`;
-    //     }
-    // });
-
-    // let minMaxDate = null;
-    // maxData.forEach(element => {
-    //     if (element.stage[0] === maxMin) {
-    //         minMaxDate = `${element.stage[1]}-${element.date}`;
-    //     }
-    // });
+    if (haveClass(timeSerieDiv, 'hidden')){
+        timeSerieDiv.classList.remove('hidden')
+    }
 
     // Change button text
     loadingPageData();
@@ -1404,45 +1227,6 @@ function extractMinMaxforMonths(allData){
 
 } 
 
-// Get Min and Max for the months
-function getMinMaxForMonths(data) {
-    let monthsData = [];
-
-    for (let i = 1; i < 13; i++){
-        let monthMax = -999;
-        let monthMin = 999;
-
-        data.forEach(element => {
-            let elementMonth = parseInt(element.date.split('-')[0]);
-
-            if (elementMonth === i){
-                if (element.stage > monthMax){
-                    monthMax = element.stage;
-                } else if (element.stage < monthMin && element.stage !== 0){
-                    monthMin = element.stage;
-                }
-            }
-        });
-
-        if (monthMax === -999){
-            monthMax = NaN;
-        }
-
-        if (monthMin === 999){
-            monthMin = NaN;
-        }
-
-        monthsData.push({
-            month: i,
-            max: monthMax,
-            min: monthMin
-        });
-    };
-
-    return monthsData
-
-}
-
 // Open the settings window
 function activateSettingWindow() {
     if (haveClass(settingsDiv, 'hidden')){
@@ -1548,11 +1332,6 @@ function isGageProject(data) {
     }
 }
 
-// Wait function
-async function sleep(ms){
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 // Disable and enable every input
 function inputsDisableAndEnable() {
 
@@ -1601,10 +1380,16 @@ function updateAvailablePORTable(data) {
 function populateDropdownList() {
     let dropdownElement = [year1SelectBox, year2SelectBox, year3SelectBox, year4SelectBox, year5SelectBox, year6SelectBox];
     let currentyear = new Date().getFullYear();
-    let lasetYear = 1950;
+    let earliestYear = PORBeginDate.textContent.split('/')[2];
+
+    console.log({earliestYear});
+
+    dropdownElement.forEach((element) => {
+        element.innerHTML = "";
+    });
 
     dropdownElement.forEach(element => {
-        for (let i = currentyear; i > lasetYear; i--){
+        for (let i = currentyear; i >= earliestYear; i--){
             let option = document.createElement('option');
             option.value = i;
             option.text = i;
@@ -1627,6 +1412,8 @@ function porCheckboxChecked() {
     porCheckbox.checked = true;
     userSpecificCheckbox.checked = false;
     noStatsCheckbox.checked = false;
+
+    plotCSHBtn.disabled = false;
 
     let porEndDateList = document.querySelector('#info-table .por-end').textContent.split('/');
 
@@ -1659,6 +1446,8 @@ function userSpecificCheckboxChecked() {
     porCheckbox.checked = false;
     userSpecificCheckbox.checked = true;
     noStatsCheckbox.checked = false;
+
+    plotCSHBtn.disabled = false;
 
     let porBeginDateList = document.querySelector('#info-table .por-start').textContent.split('/');
     let porEndDateList = document.querySelector('#info-table .por-end').textContent.split('/');
@@ -1693,6 +1482,8 @@ function noStatsCheckboxChecked() {
     userSpecificCheckbox.checked = false;
     noStatsCheckbox.checked = true;
 
+    plotCSHBtn.disabled = false;
+
     let porEndDateList = document.querySelector('#info-table .por-end').textContent.split('/');
 
     beginDate.value = "1800-01-01";
@@ -1717,6 +1508,15 @@ function noStatsCheckboxChecked() {
         statisticDiv.classList.add("hidden");
     }
 }
+
+function printPlot() {
+    Plotly.toImage('plot', { format: 'png', width: 1080, height: 720 })
+      .then(function(imgData) {
+        var newWin = window.open('');
+        newWin.document.write('<img src="' + imgData + '" onload="window.print(); window.close();" />');
+        newWin.document.close();
+      });
+  }
 
 document.addEventListener('DOMContentLoaded', async function () {
 
