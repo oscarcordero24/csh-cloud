@@ -2841,3 +2841,5 @@ function printPlot(plotDIV) {
         newWin.document.close();
       });
 }
+
+

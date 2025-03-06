@@ -8,7 +8,38 @@
 							<div class="container-fluid">
 								<div class="site-logo">
 									<a href="/">
-										<img id="usace-logo" alt="USACE Logo" src="logos/usace-logo-color.svg" />								
+										<img id="usace-logo" alt="USACE Logo" src="logos/usace-logo-color.svg" />
+										<script>
+											// Function to set the logo path based on the value of cda
+											function setLogoPath(cda) {
+												var logoElement = document.getElementById('usace-logo');
+												var logoPath;
+										
+												// Check if cda is not set or is undefined
+												if (typeof cda === 'undefined' || cda === null) {
+													cda = 'default';
+												}
+										
+												switch (cda) {
+													case 'public':
+														logoPath = 'logos/usace-logo-color.svg';
+														break;
+													case 'internal':
+														logoPath = 'logos/usace-logo-color.svg';
+														break;
+													default:
+														logoPath = 'logos/usace-logo-color.svg';
+												}
+										
+												logoElement.src = logoPath;
+											}
+										
+											// Get the value of cda (you can set it or get it from somewhere)
+											var cda;
+										
+											// Call the function to set the logo path based on the current value of cda
+											setLogoPath(cda);
+										</script>										
 									</a>
 									<div class="reg">®</div>
 								</div>
@@ -16,6 +47,9 @@
 									<ul class="top-level-menu">
 										<li><a href="/">Home</a>
 										</li>
+										<!-- <li>
+											<a href="../../../php_data_api/public/staff/index.php" target="_blank">PHP Data API</a>
+										</li> -->
 									</ul>
 								</div>
 								<div id="mobile-menu">
