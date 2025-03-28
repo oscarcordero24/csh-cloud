@@ -164,7 +164,7 @@ function initialize() {
     printBtn3.addEventListener('click', function() { printPlot('plot-3') });
 
     let offices = [
-        "CERL", "CHL",  "CPC",  "CRREL","CWMS", "EL",   "ERD",  "GSL",  "HEC",
+        "MVS", "CERL", "CHL",  "CPC",  "CRREL","CWMS", "EL",   "ERD",  "GSL",  "HEC",
         "HQ",   "ITL",  "IWR",  "LCRA", "LRB",  "LRC",  "LRD",  "LRDG", "LRDO",
         "LRE",  "LRH",  "LRL",  "LRN",  "LRP",  "MVD",  "MVK",  "MVM",  "MVN",
         "MVP",  "MVR",  "MVS",  "NAB",  "NAD",  "NAE",  "NAN",  "NAO",  "NAP",
@@ -182,21 +182,21 @@ function initialize() {
         option.textContent = item;
 
         officeName.append(option);
-    });
-
-    for (let i = 0; i < officeName.options.length; i++){
-        let currentOption = officeName.options[i]
-        if (currentOption.value === "MVS"){
-            officeName.selectedIndex = i;
-        }
-    }    
+    });  
 
     let selectOfficeOption = document.createElement('option');
-    selectOfficeOption.value = "Select Gage";
-    selectOfficeOption.text = "Select Gage";
+    selectOfficeOption.value = "Select Office";
+    selectOfficeOption.text = "Select Office";
 
     officeName.insertBefore(selectOfficeOption, officeName.firstChild);
-    officeName.selectedIndex = 0;   
+    officeName.selectedIndex = 0;  
+    
+    // for (let i = 0; i < officeName.options.length; i++){
+    //     let currentOption = officeName.options[i]
+    //     if (currentOption.value === "MVS"){
+    //         officeName.selectedIndex = i;
+    //     }
+    // }  
 
     gageName.disabled = true;
     basinName.disabled = true;
@@ -810,6 +810,14 @@ function initialize() {
                     }
 
                     errorMessageText.innerHTML = `There was a problem with the initial fetch operation: <strong>${error}</strong>`;
+
+                    if (!haveClass(settingsDiv, 'hidden')){
+                        settingsDiv.classList.add('hidden');
+                    };
+        
+                    if (!haveClass(separatorDiv, 'hidden')){
+                        separatorDiv.classList.add('hidden');
+                    };
 
                     loadingPageData();
                 });
