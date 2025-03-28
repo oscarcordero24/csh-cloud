@@ -819,6 +819,9 @@ function initialize() {
                         separatorDiv.classList.add('hidden');
                     };
 
+                    basinName.innerHTML = "";
+                    gageName.innerHTML = "";
+
                     loadingPageData();
                 });
         
