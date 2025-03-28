@@ -855,7 +855,6 @@ function initialize() {
                         outflowTimeSerieDiv.classList.add('hidden');
                     };
 
-                    
                     basinName.innerHTML = "";
                     gageName.innerHTML = "";
 
