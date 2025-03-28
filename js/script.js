@@ -819,6 +819,18 @@ function initialize() {
                         separatorDiv.classList.add('hidden');
                     };
 
+                    if (!haveClass(plotDiv, 'hidden')){
+                        plotDiv.classList.add('hidden');
+                    };
+
+                    if (!haveClass(plotDiv2, 'hidden')){
+                        plotDiv2.classList.add('hidden');
+                    };
+
+                    if (!haveClass(plotDiv3, 'hidden')){
+                        plotDiv3.classList.add('hidden');
+                    };
+
                     basinName.innerHTML = "";
                     gageName.innerHTML = "";
 
