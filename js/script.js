@@ -831,6 +831,30 @@ function initialize() {
                         plotDiv3.classList.add('hidden');
                     };
 
+                    if (!haveClass(printBtnDiv, 'hidden')){
+                        printBtnDiv.classList.add('hidden');
+                    };
+
+                    if (!haveClass(printBtn2Div, 'hidden')){
+                        printBtn2Div.classList.add('hidden');
+                    };
+
+                    if (!haveClass(printBtn3Div, 'hidden')){
+                        printBtn3Div.classList.add('hidden');
+                    };
+
+                    if (!haveClass(timeSerieDiv, 'hidden')){
+                        timeSerieDiv.classList.add('hidden');
+                    };
+
+                    if (!haveClass(inflowTimeSerieDiv, 'hidden')){
+                        inflowTimeSerieDiv.classList.add('hidden');
+                    };
+
+                    if (!haveClass(outflowTimeSerieDiv, 'hidden')){
+                        outflowTimeSerieDiv.classList.add('hidden');
+                    };
+
                     basinName.innerHTML = "";
                     gageName.innerHTML = "";
 
