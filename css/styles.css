@@ -658,3 +658,11 @@
     font-size: 1.2em;
     font-weight: bold;
 }
+
+/*====================== UPDATE STYLES ===================*/
+.fill-shader-info {
+    color: rgb(105, 105, 105);
+    font-weight: bold;
+    font-style: italic;
+    font-size: 0.85em;
+}

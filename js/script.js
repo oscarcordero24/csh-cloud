@@ -95,7 +95,7 @@ const basinName = document.getElementById('basinCombobox'),
       printBtn3= document.getElementById('print-btn-3'),
       progressBar = document.getElementById('progress'),
       progressBarDiv = document.getElementById('progress-bar-div'),
-      progressBarText = document.querySelector('#progress-bar-div .progress-bar-text');;
+      progressBarText = document.querySelector('#progress-bar-div .progress-bar-text');
 
 
 let params = new URLSearchParams(window.location.search);
@@ -1541,7 +1541,7 @@ function getDataToInitialize(data) {
         floodStageText.innerHTML = "Plot Flood Stage";
         lwrpStageText.innerHTML = "Plot LWRP";
 
-        year1SelectBox.selectedIndex = 0;
+        year1SelectBox.selectedIndex = 1;
         year2SelectBox.selectedIndex = 0;
         year3SelectBox.selectedIndex = 0;        
         year4SelectBox.selectedIndex = 0;
@@ -1636,7 +1636,7 @@ function getDataToInitialize(data) {
         floodStageText.innerHTML = "Plot Flood Stage";
         lwrpStageText.innerHTML = "Plot LWRP";
 
-        year1SelectBox.selectedIndex = 0;
+        year1SelectBox.selectedIndex = 1;
         year2SelectBox.selectedIndex = 0;
         year3SelectBox.selectedIndex = 0;        
         year4SelectBox.selectedIndex = 0;
@@ -2202,21 +2202,21 @@ function createPlot(data, title, minValue, maxValue, plotDivID, yAxisTitle) {
             text: title, 
             font: {size: 20} 
         },
-        width: 1200,
+        width: 1400,
         height: 720,
         xaxis: {
             mirror: 'ticks',
             showlines: true,
             linewidth: 1,
             linecolor: 'black',
-            title: { text: 'Date', font: {size: 18} },
+            title: { text: 'Time', font: {size: 18} },
             type: 'date',
             tickfont: { size: 16 },
             dtick: "M1",
             tickformatstops: [
                 {
                     dtickrange: [null, 86400000 * 31],
-                    value: "%d %b"
+                    value: "%b" // "%d %b"
                 },
                 {
                     dtickrange: [86400000 * 31, null],
@@ -2962,6 +2962,8 @@ function populateDropdownList() {
 
         element.selectedIndex = 0;
     });
+
+    dropdownElement[0].selectedIndex = 1;
 }
 
 // Handle POR checkbox
@@ -3074,5 +3076,4 @@ function printPlot(plotDIV) {
         newWin.document.close();
       });
 }
-
 
