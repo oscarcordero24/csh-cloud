@@ -76,6 +76,7 @@ const basinName = document.getElementById('basinCombobox'),
       plotDiv = document.getElementById('plot'),
       plotDiv2 = document.getElementById('plot-2'),
       plotDiv3 = document.getElementById('plot-3'),
+      plotDiv4 = document.getElementById('plot-4'),
       instructionsDiv = document.getElementById('instructions-div'),
       floodStageText = document.getElementById('flood-stage-text'),
       lwrpStageText = document.getElementById('lwrp-text'),
@@ -95,7 +96,11 @@ const basinName = document.getElementById('basinCombobox'),
       printBtn3= document.getElementById('print-btn-3'),
       progressBar = document.getElementById('progress'),
       progressBarDiv = document.getElementById('progress-bar-div'),
-      progressBarText = document.querySelector('#progress-bar-div .progress-bar-text');
+      progressBarText = document.querySelector('#progress-bar-div .progress-bar-text'),
+      flowTimeSerieDiv = document.getElementById('flow-time-serie-name-div'),
+      flowTimeSerieText = document.querySelector('#flow-time-serie-name-div h2'),
+      printBtn4Div = document.getElementById('print-btn-4-div'),
+      printBtn4= document.getElementById('print-btn-4');
 
 
 let params = new URLSearchParams(window.location.search);
@@ -111,6 +116,7 @@ const consoleLog = conlog === "true" ? true : false;
 
 // Global Variable
 let globalDatman = null;
+let globalDatmanFlow = null;
 let globalDatmanInflow = null;
 let globalDatmanOutflow = null;
 let office;
@@ -162,6 +168,7 @@ function initialize() {
     printBtn.addEventListener('click', function() { printPlot('plot') });
     printBtn2.addEventListener('click', function() { printPlot('plot-2') });
     printBtn3.addEventListener('click', function() { printPlot('plot-3') });
+    printBtn4.addEventListener('click', function() { printPlot('plot-4') });
 
     let offices = [
         "MVS", "CERL", "CHL",  "CPC",  "CRREL","CWMS", "EL",   "ERD",  "GSL",  "HEC",
@@ -249,6 +256,7 @@ function initialize() {
             const projectMap = new Map();
             const tsidDatmanInflowMap = new Map();
             const tsidDatmanOutflowMap = new Map();
+            const tsidDatmanFlowMap = new Map();
         
             // Initialize arrays for storing promises
             const metadataPromises = [];
@@ -258,6 +266,7 @@ function initialize() {
             const projectPromises = [];
             const datmanInflowTsidPromises = [];
             const datmanOutflowTsidPromises = [];
+            const datmanFlowTsidPromises = [];
         
             // Fetch location group data from the API
             fetch(categoryApiUrl)
@@ -413,6 +422,27 @@ function initialize() {
                                                         console.error(`Problem with the fetch operation for stage TSID data at ${tsidDatmanApiUrl}:`, error);
                                                     })
                                             );
+
+                                            // Fetch Flow TSID data
+                                            const tsidDatmanFlowApiUrl = setBaseUrl + `timeseries/group/Datman-Flow?office=${office}&category-id=${loc['location-id']}`;
+                                            // console.log('tsidDatmanFlowApiUrl:', tsidDatmanFlowApiUrl);
+                                            datmanFlowTsidPromises.push(
+                                                fetch(tsidDatmanFlowApiUrl)
+                                                    .then(response => {
+                                                        if (response.status === 404) return null; // Skip if not found
+                                                        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                                                        return response.json();
+                                                    })
+                                                    .then(tsidDatmanFlowData => {
+                                                        // console.log('tsidDatmanFlowData:', tsidDatmanFlowData);
+                                                        if (tsidDatmanFlowData) {
+                                                            tsidDatmanFlowMap.set(loc['location-id'], tsidDatmanFlowData);
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error(`Problem with the fetch operation for stage TSID data at ${tsidDatmanFlowApiUrl}:`, error);
+                                                    })
+                                            );
         
                                             // Fetch Inflow TSID data
                                             const tsidDatmanInflowApiUrl = setBaseUrl + `timeseries/group/Datman-Inflow?office=${office}&category-id=${loc['location-id']}`;
@@ -493,6 +523,7 @@ function initialize() {
                         .then(() => Promise.all(stageTsidPromises))
                         .then(() => Promise.all(datmanInflowTsidPromises))
                         .then(() => Promise.all(datmanOutflowTsidPromises))
+                        .then(() => Promise.all(datmanFlowTsidPromises))
                         .then(() => {
                             combinedData.forEach(basinData => {
                                 if (basinData['assigned-locations']) {
@@ -524,6 +555,15 @@ function initialize() {
                                             loc['tsid-datman'] = tsidDatmanMapData;
                                         } else {
                                             loc['tsid-datman'] = null;  // Append null if missing
+                                        }
+
+                                        // Add datman Flow to json
+                                        const tsidDatmanFlowMapData = tsidDatmanFlowMap.get(loc['location-id']);
+                                        if (tsidDatmanFlowMapData) {
+                                            reorderByAttribute(tsidDatmanFlowMapData);
+                                            loc['tsid-datman-flow'] = tsidDatmanFlowMapData;
+                                        } else {
+                                            loc['tsid-datman-flow'] = null;  // Append null if missing
                                         }
         
                                         // Add datman Inflow to json
@@ -571,6 +611,7 @@ function initialize() {
                                 for (const locData of dataArray['assigned-locations'] || []) {
                                     // Handle temperature, depth, and DO time series
                                     const datmanTimeSeries = locData['tsid-datman']?.['assigned-time-series'] || [];
+                                    const datmanFlowTimeSeries = locData['tsid-datman-flow']?.['assigned-time-series'] || [];
                                     const datmanInflowTimeSeries = locData['tsid-datman-inflow']?.['assigned-time-series'] || [];
                                     const datmanOutflowTimeSeries = locData['tsid-datman-outflow']?.['assigned-time-series'] || [];
         
@@ -674,6 +715,7 @@ function initialize() {
         
                                     // Create promises for temperature, depth, and DO time series
                                     const datmanPromises = timeSeriesDataFetchPromises(datmanTimeSeries, 'datman');
+                                    const datmanFlowPromises = timeSeriesDataFetchPromises(datmanFlowTimeSeries, 'datman-flow');
                                     const datmanInflowPromises = timeSeriesDataFetchPromises(datmanInflowTimeSeries, 'datman-inflow');
                                     const datmanOutflowPromises = timeSeriesDataFetchPromises(datmanOutflowTimeSeries, 'datman-outflow');
         
@@ -694,9 +736,10 @@ function initialize() {
         
                                                 // Collect TSIDs from temp, depth, and DO time series
                                                 const datmanTids = datmanTimeSeries.map(series => series['timeseries-id']);
+                                                const datmanFlowTids = datmanFlowTimeSeries.map(series => series['timeseries-id']);
                                                 const datmanInflowTids = datmanInflowTimeSeries.map(series => series['timeseries-id']);
                                                 const datmanOutflowTids = datmanOutflowTimeSeries.map(series => series['timeseries-id']);
-                                                const allTids = [...datmanTids, ...datmanInflowTids, ...datmanOutflowTids]; // Combine both arrays
+                                                const allTids = [...datmanTids, ...datmanFlowTids, ...datmanInflowTids, ...datmanOutflowTids]; // Combine both arrays
         
                                                 // Iterate over all TSIDs and create extents data entries
                                                 allTids.forEach((tsid, index) => {
@@ -717,6 +760,8 @@ function initialize() {
                                                         let extent_key;
                                                         if (tsid.includes('Stage') || tsid.includes('Elev')) { // Example for another condition
                                                             extent_key = 'datman';
+                                                        } else if (tsid.includes('Flow')) {
+                                                            extent_key = 'datman-flow';
                                                         } else if (tsid.includes('Flow-In')) {
                                                             extent_key = 'datman-inflow';
                                                         } else if (tsid.includes('Flow-Out')) {
@@ -741,7 +786,7 @@ function initialize() {
                                     };
         
                                     // Combine all promises for this location
-                                    timeSeriesDataPromises.push(Promise.all([...datmanPromises, ...datmanInflowPromises, ...datmanOutflowPromises, timeSeriesDataExtentsApiCall()]));
+                                    timeSeriesDataPromises.push(Promise.all([...datmanPromises, ...datmanFlowPromises, ...datmanInflowPromises, ...datmanOutflowPromises, timeSeriesDataExtentsApiCall()]));
                                 }
                             }
         
@@ -833,6 +878,10 @@ function initialize() {
                         plotDiv3.classList.add('hidden');
                     };
 
+                    if (!haveClass(plotDiv4, 'hidden')){
+                        plotDiv4.classList.add('hidden');
+                    };
+
                     if (!haveClass(printBtnDiv, 'hidden')){
                         printBtnDiv.classList.add('hidden');
                     };
@@ -845,8 +894,16 @@ function initialize() {
                         printBtn3Div.classList.add('hidden');
                     };
 
+                    if (!haveClass(printBtn4Div, 'hidden')){
+                        printBtn4Div.classList.add('hidden');
+                    };
+
                     if (!haveClass(timeSerieDiv, 'hidden')){
                         timeSerieDiv.classList.add('hidden');
+                    };
+
+                    if (!haveClass(flowTimeSerieDiv, 'hidden')){
+                        flowTimeSerieDiv.classList.add('hidden');
                     };
 
                     if (!haveClass(inflowTimeSerieDiv, 'hidden')){
@@ -1476,6 +1533,14 @@ function getDataToInitialize(data) {
             outflowTimeSerieDiv.classList.add('hidden')
         }
 
+        if (!haveClass(printBtn4Div, 'hidden')){
+            printBtn4Div.classList.add('hidden')
+        }
+
+        if (!haveClass(flowTimeSerieDiv, 'hidden')){
+            flowTimeSerieDiv.classList.add('hidden')
+        }
+
         gageName.options.length = 0;
         namesObject.forEach(element => {
             if (element['basin'] === basinName.value) {
@@ -1521,6 +1586,10 @@ function getDataToInitialize(data) {
 
         if (!haveClass(plotDiv3, 'hidden')) {
             plotDiv3.classList.add('hidden');
+        };
+
+        if (!haveClass(plotDiv4, 'hidden')) {
+            plotDiv4.classList.add('hidden');
         };
 
         if(haveClass(floodStageColorBox, 'hidden')){
@@ -1585,6 +1654,14 @@ function getDataToInitialize(data) {
             outflowTimeSerieDiv.classList.add('hidden')
         }
 
+        if (!haveClass(printBtn4Div, 'hidden')){
+            printBtn4Div.classList.add('hidden')
+        }
+
+        if (!haveClass(flowTimeSerieDiv, 'hidden')){
+            flowTimeSerieDiv.classList.add('hidden')
+        }
+
         updateAvailablePORTable(data);
 
         // Determine if it's project
@@ -1620,6 +1697,10 @@ function getDataToInitialize(data) {
 
         if (!haveClass(plotDiv3, 'hidden')) {
             plotDiv3.classList.add('hidden');
+        };
+
+        if (!haveClass(plotDiv4, 'hidden')) {
+            plotDiv4.classList.add('hidden');
         };
 
         if(haveClass(floodStageColorBox, 'hidden')){
@@ -1715,6 +1796,7 @@ function getDataToInitialize(data) {
 
             // Get Datman name ID
             let datmanName = null;
+            let datmanFlowName = null;
             let datmanInflowName = null;
             let datmanOutflowName = null;
             data.forEach(element => {
@@ -1724,10 +1806,26 @@ function getDataToInitialize(data) {
 
                             try{
                                 datmanName = item['extents-data']['datman'][0]['name'];
+                            } catch (err) {
+                                console.error("There is datman data: ", err);
+                            }
+
+                            try{
                                 datmanInflowName = item['extents-data']['datman-inflow'][0]['name'];
+                            } catch (err) {
+                                console.error("There is no Inflow data: ", err);
+                            }
+
+                            try{
                                 datmanOutflowName = item['extents-data']['datman-outflow'][0]['name'];
                             } catch (err) {
-                                console.error("There is no Inflow or Outflow data: ", err);
+                                console.error("There is no Outflow data: ", err);
+                            }
+
+                            try{
+                                datmanFlowName = item['extents-data']['datman-flow'][0]['name'];
+                            } catch (err) {
+                                console.error("There is no Flow data: ", err);
                             }
                             
                         };
@@ -1737,12 +1835,13 @@ function getDataToInitialize(data) {
             globalDatman = datmanName;
             globalDatmanInflow = datmanInflowName;
             globalDatmanOutflow = datmanOutflowName;
+            globalDatmanFlow = datmanFlowName;
 
             globalCounter += 1;
             processNextItem(globalCounter, globalTotalCounter, "Creating Plot");
             await sleep(sleepTime);
 
-            consoleLog ? console.log({globalDatman, globalDatmanInflow, globalDatmanOutflow}) : null;
+            consoleLog ? console.log({globalDatman, globalDatmanFlow, globalDatmanInflow, globalDatmanOutflow}) : null;
 
             // Initialize variables
             let beginValue = formatString("start date", beginDate.value); // YYYY-MM-DD
@@ -1790,6 +1889,24 @@ function getDataToInitialize(data) {
                     progressBarDiv.classList.add('hidden');
                 }
             });
+
+            // If there is Flow Data
+            if (globalDatmanFlow !== null){
+
+                let satgeUrlFlow = createUrl(domain,timeSeries,datmanFlowName,office,beginValue,endValue,timeZone);
+                satgeUrlFlow = satgeUrlFlow + `&page-size=${pageSize}`;
+
+                fetchJsonFile(satgeUrlFlow, function(newData) { 
+
+                    main(newData, "flow", "plot-4", plotDiv4, printBtn4Div, flowTimeSerieDiv, flowTimeSerieText);
+
+                }, function(error){
+                    popupMessage("error", "There was an error getting the data.<br>Error: '" + error + "'");
+                    popupWindowBtn.click();
+
+                });
+
+            }
 
             // If there is Inflow Data
             if (globalDatmanInflow !== null){
@@ -2105,6 +2222,8 @@ async function main(data, dataType, plotID, plotDIV, plotPrintBtnDIV, plotTimeSe
         title += " (Inflow)";
     } else if (dataType === "outflow") {
         title += " (Outflow)";
+    } else if (dataType === "flow") {
+        title += " (Flow)";
     }
 
     globalCounter += 1;
@@ -2127,6 +2246,8 @@ async function main(data, dataType, plotID, plotDIV, plotPrintBtnDIV, plotTimeSe
         timeSerieToShow = globalDatmanInflow;
     } else if (dataType === "outflow") {
         timeSerieToShow = globalDatmanOutflow;
+    } else if (dataType === "flow") {
+        timeSerieToShow = globalDatmanFlow;
     }
 
     plotTimeSerieText.textContent = `Time Serie: ${timeSerieToShow}`;
